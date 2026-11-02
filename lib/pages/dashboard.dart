@@ -1,201 +1,232 @@
+import 'package:bannerr/controller/apicall.dart';
+import 'package:bannerr/core/static.dart';
+import 'package:bannerr/model/news.dart';
 import 'package:bannerr/pages/detailpage.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_date_formatter/smart_date_formatter.dart';
 
 class dashboard extends StatefulWidget {
-  const dashboard({super.key});
+  dashboard({super.key});
 
   @override
   State<dashboard> createState() => dashboardState();
 }
 
-// Public (no underscore) so Detailpage can use dashboardState.verticallistcard
 class dashboardState extends State<dashboard> {
 
-  // Opens the detail page and passes the tapped card's data to it
-  void openDetail(String title, String url, String date) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (context) => Detailpage(
-          title: title,
-          imageUrl: url,
-          date: date,
-        ),
-      ),
-    );
-  }
-
-  // ---------- Horizontal card ----------
-  Widget horizontallistcard(size, String title, String url, String date) {
+  horizontallistcard(size, String title, url, date ,Articles art ){
     return GestureDetector(
-      onTap: () => openDetail(title, url, date),
-      child: Container(
-        margin: EdgeInsets.only(left: 10, right: 10, top: 8),
-        width: size.width / 1.1,
-        decoration: BoxDecoration(
-          color: Colors.grey,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Image.network(
-                url,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    Center(child: Icon(Icons.broken_image, color: Colors.white54)),
-              ),
-              Container(color: Colors.black26),
-              Positioned(
-                bottom: 40,
-                left: 20,
-                child: Container(
-                  width: size.width / 2,
-                  child: Text(
-                    title,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 20,
-                left: 20,
-                child: Container(
-                  width: size.width / 2,
-                  child: Text(
-                    date,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 20,
-                right: 20,
-                child: Icon(Icons.play_circle, color: Colors.white, size: 30),
-              ),
-            ],
+      onTap: (){
+        //store in static variable
+        StaticFile.article = art;
+        //route
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (context) => detailpage(),
           ),
-        ),
+        );
+      },
+      child: Stack(
+        children: [
+          Container(
+            margin: EdgeInsets.all(15),
+            height: size.height/4.5,
+            width: size.width/1.2,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(20),
+
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.network( url
+                ,fit: BoxFit.cover,),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.all(15),
+            height: size.height/4.5,
+            width: size.width/1.2,
+            decoration: BoxDecoration(
+              color: Colors.black38,
+              borderRadius: BorderRadius.circular(20),
+
+            ),
+          ),
+          Positioned(
+            bottom: 45,
+            left: 30,
+            child: Container(
+              width: size.width/2,
+              child: Text(title,
+                style: TextStyle(color: Colors.white,fontSize: 14),
+                maxLines: 2,overflow: TextOverflow.ellipsis,),
+            ),
+          ),
+          Positioned(
+            bottom: 25,
+            left: 30,
+            child: Container(
+              width: size.width/2,
+              child: Text(DateTime.now().toReadable,
+                style: TextStyle(color: Colors.white,fontSize: 14),
+                maxLines: 1,overflow: TextOverflow.ellipsis,),
+            ),
+          ),
+          Positioned(
+            bottom: 25,
+            right: 30,
+            child: Icon(Icons.play_circle_fill,
+              color: Colors.white,
+              size: 40,
+            ),
+          )
+        ],
       ),
     );
   }
 
-  // ---------- Vertical card (static, also used by Detailpage) ----------
-  static Widget verticallistcard(
-      size, String title, String url, String button, String price) {
-    return Row(
+  static verticallistcard(size, title, url, date, source){
+    var formatted=StaticFile.dateconverter(date);
+    date=formatted;
+    return  Row(
       children: [
         Column(
           children: [
-            Container(
-              margin: EdgeInsets.all(10),
-              height: 100,
-              width: 100,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  url,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      Center(child: Icon(Icons.broken_image)),
+            Stack(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(10),
+                  height: 100,
+                  width: 100,
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                  child: ClipRRect(borderRadius: BorderRadius.circular(20)
+                      ,child: Image.network(url
+                        ,fit: BoxFit.cover,)),
                 ),
-              ),
-            ),
+                Positioned(
+                  top: 40,
+                  left: 40,
+                  child: Icon(Icons.play_circle_fill,
+                    color: Colors.white,size: 40,),
+                )
+              ],
+            )
           ],
         ),
-        Column(
-          children: [
-            SizedBox(
-              width: 230,
-              child: Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            SizedBox(height: 10),
-            SizedBox(
-              width: 230,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.red,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 15.0, right: 15.0, top: 8, bottom: 8),
-                      child: Text(
-                        button,
-                        style: TextStyle(color: Colors.white),
+        Container(
+          height: size.height/10,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                  width: size.width/1.6,
+                  child: Text(title,
+                    maxLines: 2,overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),)),
+
+              Container(
+                width: size.width/1.6,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.all(3),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 15.0,right: 15,top: 8,bottom: 8),
+                        child: Text(source,style: TextStyle(color: Colors.white),),
                       ),
                     ),
-                  ),
-                  Container(
-                    child: Text(price),
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
+                    Text(date.split(",")[1]),
+
+                  ],
+                ),
+              )
+            ],
+          ),
+        )
       ],
     );
   }
 
+  Future<news?>? futurenewsdata;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    futurenewsdata = Apicall.getnewsdata();
+  }
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Dashboard"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(),
       body: Column(
         children: [
-          // Horizontal ListView.builder
-          SizedBox(
-            height: size.height / 4.5 + 8, // +8 for the card's top margin
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.zero,
-              itemCount: 5,
-              itemBuilder: (BuildContext context, int index) {
-                return horizontallistcard(
-                  size,
-                  "L5 pcps news news news happy dashian L5 pcps news news news happy dashian",
-                  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjZEcP2NkJQgEzAbBaG49jkD5TOG9hI9VALB1a_-vXlQ&s=10",
-                  "Sept 30, 2026",
-                );
-              },
-            ),
-          ),
+          FutureBuilder(
+              future: futurenewsdata,
+              builder: (context, AsyncSnapshot<news?> snapshot)
+              {
+                switch (snapshot.connectionState){
+                  case ConnectionState.none:
+                  case ConnectionState.waiting:
+                    return Center(child: CircularProgressIndicator());
+                  case ConnectionState.active:
+                  case ConnectionState.done:
+                    if(snapshot.hasData){
+                      //show ui
+                      var data = snapshot.data;
+                      return Column(
+                        children: [
+                          Container(
+                            height: size.height/4,
+                            child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: EdgeInsets.zero,
+                                itemCount: data!.articles!.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return  horizontallistcard(
+                                      size,
+                                      data.articles![index].title!,
+                                      data.articles![index].urlToImage,
+                                      data.articles![index].publishedAt,
+                                      data.articles![index]
+                                  );
+                                }
+                            ),
+                          ),
+                          //vertical list
+                          Container(
+                            height: size.height/1.75,
+                            child: ListView.builder(
+                                scrollDirection: Axis.vertical,
+                                padding: EdgeInsets.zero,
+                                itemCount: data.articles!.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return  verticallistcard(
+                                      size,
+                                      data.articles![index].title!,
+                                      data.articles![index].urlToImage,
+                                      data.articles![index].publishedAt!.split("T")[0],
+                                      data.articles![index].source!.name!.toString()
+                                  );
+                                }
+                            ),
+                          ),
+                        ],
+                      );
+                    }else{
+                      return Center(child:
+                      Text("No Data Available"),);
+                    }
+                }
+              }),
 
-          // Vertical ListView.builder
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: 5,
-              itemBuilder: (BuildContext context, int index) {
-                const title = "this is first";
-                const url =
-                    "https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg";
-                return GestureDetector(
-                  onTap: () => openDetail(title, url, "Sept 30, 2026"),
-                  child: verticallistcard(size, title, url, "BBC news", "Rs45000"),
-                );
-              },
-            ),
-          ),
+
         ],
       ),
     );
